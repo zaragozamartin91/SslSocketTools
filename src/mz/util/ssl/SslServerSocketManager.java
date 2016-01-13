@@ -1,6 +1,8 @@
 package mz.util.ssl;
 
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -23,15 +25,18 @@ public class SslServerSocketManager {
 	private String keyPwd = "serverpw";
 	private SSLServerSocketFactory sslServerSocketFactory = null;
 
-	public void testRun() {
+	void testRun() {
 		try {
 			int serverport = 443;
 			SSLServerSocket s = createServerSocket(serverport);
 			System.out.println("waiting for connection...");
-			SSLSocket c = (SSLSocket) s.accept();
+			SSLSocket clientSocket = (SSLSocket) s.accept();
 
+			/*envia un mensaje sencillo de saludo al cliente*/
+			saluteClient(clientSocket);
+			
 			System.out.println("server handshakes client");
-			c.startHandshake();
+			clientSocket.startHandshake();
 			System.out.println("server handshake complete!");
 
 			System.out.println("connection success!");
@@ -40,6 +45,10 @@ public class SslServerSocketManager {
 			e.printStackTrace();
 		}
 	}// run
+
+	private void saluteClient(SSLSocket clientSocket) throws IOException, UnsupportedEncodingException {
+		clientSocket.getOutputStream().write("Server says hello!".getBytes("UTF-8"));
+	}
 
 	/**
 	 * Crea una nueva fabrica de sockets de servidor tipo ssl.
@@ -109,7 +118,15 @@ public class SslServerSocketManager {
 		this.keyPwd = keyPwd;
 	}// cons
 
+	/*
+	wrapper.java.additional.1=-Djavax.net.ssl.keyStorePassword=macro02
+	wrapper.java.additional.2=-Djavax.net.ssl.trustStorePassword=macro02
+	wrapper.java.additional.3=-Djavax.net.ssl.keyStore="../macro02-test.jks"
+	wrapper.java.additional.4=-Djavax.net.ssl.trustStore="../macro02-test.jks"
+	*/
+
 	public static void main(String[] args) {
-		new SslServerSocketManager("testFiles/certs", "serverkspw", "serverpw").testRun();
+		//		new SslServerSocketManager("testFiles/certs", "serverkspw", "serverpw").testRun();
+		new SslServerSocketManager("testFiles/macro02-test.jks", "macro02", "macro02").testRun();
 	}// main
 }// SSLServer

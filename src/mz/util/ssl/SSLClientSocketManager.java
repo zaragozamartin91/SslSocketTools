@@ -1,6 +1,8 @@
 package mz.util.ssl;
 
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 
@@ -30,6 +32,9 @@ public class SSLClientSocketManager {
 			int serverport = 443;
 			SSLSocket sslSocket = (SSLSocket) createSocket(serverip, serverport);
 
+			/*recibe un mensaje de saludo del server*/
+			receiveSrvMsg(sslSocket);
+
 			System.out.println("client handshakes with server");
 			sslSocket.startHandshake();
 			System.out.println("client handshake complete!");
@@ -44,6 +49,12 @@ public class SSLClientSocketManager {
 		}
 
 	}//testRun
+
+	private void receiveSrvMsg(SSLSocket sslSocket) throws IOException, UnsupportedEncodingException {
+		byte[] buffer = new byte[1024];
+		sslSocket.getInputStream().read(buffer);
+		System.out.println(new String(buffer, "UTF-8"));
+	}
 
 	private SSLSocketFactory createSocketFactory() throws SSLSocketManagerException {
 		try {
@@ -139,6 +150,7 @@ public class SSLClientSocketManager {
 	}
 
 	public static void main(String[] args) {
-		new SSLClientSocketManager("testFiles/jssecacerts", "12345678", "serverpw").testRun();
+		//		new SSLClientSocketManager("testFiles/jssecacerts", "12345678", "serverpw").testRun();
+		new SSLClientSocketManager("testFiles/macro02-test.jks", "macro02", "macro02").testRun();
 	}
 }// SSLClientSocketManager
